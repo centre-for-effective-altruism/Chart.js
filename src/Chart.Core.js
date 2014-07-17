@@ -1644,7 +1644,6 @@
 				// Print X axis
 				if (this.xAxisLabel) {
 					ctx.save();
-					var lastXIndex = this.xLabels.length - 1;
 					var yPos = this.endPoint + 40;
 					ctx.font = this.font;
 					ctx.textAlign = "center";
