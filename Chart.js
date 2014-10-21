@@ -48,6 +48,11 @@
 			// Boolean - If we should show the scale at all
 			showScale: true,
 
+			/* @patch-start */
+			showXMarkers : 1,
+			showYMarkers : 1,
+			/* @patch-end */
+
 			// Boolean - If we want to override with a hard coded scale
 			scaleOverride: false,
 
@@ -60,10 +65,10 @@
 			scaleStartValue: null,
 
 			// String - Colour of the scale line
-			scaleLineColor: "rgba(0,0,0,.1)",
+			scaleLineColor: "#2A2E30",
 
 			// Number - Pixel width of the scale line
-			scaleLineWidth: 1,
+			scaleLineWidth: 3,
 
 			// Boolean - Whether to show labels on the scale
 			scaleShowLabels: true,
@@ -78,22 +83,22 @@
 			scaleBeginAtZero: false,
 
 			// String - Scale label font declaration for the scale label
-			scaleFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+			scaleFontFamily: "'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif",
 
 			// Number - Scale label font size in pixels
-			scaleFontSize: 12,
+			scaleFontSize: 22,
 
 			// String - Scale label font weight style
 			scaleFontStyle: "normal",
 
 			// String - Scale label font colour
-			scaleFontColor: "#666",
+			scaleFontColor: "#2A2E30",
 
 			// Boolean - whether or not the chart should be responsive and resize when the browser does.
-			responsive: false,
+			responsive: true,
 
-                        // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
-                        maintainAspectRatio: true,
+      // Boolean - whether to maintain the starting aspect ratio or not when responsive, if set to false, will take up entire container
+      maintainAspectRatio: true,
 
 			// Boolean - Determines whether to draw tooltips on the canvas or not - attaches events to touchmove & mousemove
 			showTooltips: true,
@@ -105,7 +110,7 @@
 			tooltipFillColor: "rgba(0,0,0,0.8)",
 
 			// String - Tooltip label font declaration for the scale label
-			tooltipFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+			tooltipFontFamily: "'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif",
 
 			// Number - Tooltip label font size in pixels
 			tooltipFontSize: 14,
@@ -117,7 +122,7 @@
 			tooltipFontColor: "#fff",
 
 			// String - Tooltip title font declaration for the scale label
-			tooltipTitleFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+			tooltipTitleFontFamily: "'museo-sans', 'Helvetica Neue', Helvetica, Arial, sans-serif",
 
 			// Number - Tooltip title font size in pixels
 			tooltipTitleFontSize: 14,
@@ -441,6 +446,7 @@
 		//Templating methods
 		//Javascript micro templating by John Resig - source at http://ejohn.org/blog/javascript-micro-templating/
 		template = helpers.template = function(templateString, valuesObject){
+			console.log(valuesObject);
 			 // If templateString is function rather than string-template - call the function for valuesObject
 			if(templateString instanceof Function){
 			 	return templateString(valuesObject);
@@ -1560,15 +1566,21 @@
 			if (this.display){
 				ctx.fillStyle = this.textColor;
 				ctx.font = this.font;
+
+
 				each(this.yLabels,function(labelString,index){
 					var yLabelCenter = this.endPoint - (yLabelGap * index),
 						linePositionY = Math.round(yLabelCenter);
 
 					ctx.textAlign = "right";
 					ctx.textBaseline = "middle";
-					if (this.showLabels){
+
+					/* @patch-start */
+					if (this.showYMarkers == 1){
 						ctx.fillText(labelString,xStart - 10,yLabelCenter);
 					}
+					/* @patch-end */
+
 					ctx.beginPath();
 					if (index > 0){
 						// This is a grid line in the centre, so drop that
@@ -1578,6 +1590,7 @@
 						// This is the first line on the scale
 						ctx.lineWidth = this.lineWidth;
 						ctx.strokeStyle = this.lineColor;
+						linePositionY = linePositionY + 1;
 					}
 
 					linePositionY += helpers.aliasPixel(ctx.lineWidth);
@@ -1597,6 +1610,7 @@
 
 				},this);
 
+
 				each(this.xLabels,function(label,index){
 					var xPos = this.calculateX(index) + aliasPixel(this.lineWidth),
 						// Check to see if line/bar here and decide where to place the line
@@ -1613,6 +1627,7 @@
 						// This is the first line on the scale
 						ctx.lineWidth = this.lineWidth;
 						ctx.strokeStyle = this.lineColor;
+						linePos = linePos - 2;
 					}
 					ctx.moveTo(linePos,this.endPoint);
 					ctx.lineTo(linePos,this.startPoint - 3);
@@ -1637,7 +1652,12 @@
 					ctx.font = this.font;
 					ctx.textAlign = (isRotated) ? "right" : "center";
 					ctx.textBaseline = (isRotated) ? "middle" : "top";
-					ctx.fillText(label, 0, 0);
+
+					/* @patch-start */
+					if (this.showXMarkers == 1){
+						ctx.fillText(label, 0, 0);
+					}
+					/* @patch-end */
 					ctx.restore();
 				},this);
 
@@ -1645,7 +1665,13 @@
 				if (this.xAxisLabel) {
 					ctx.save();
 					var yPos = this.endPoint + 40;
-					ctx.font = this.font;
+
+					/** @todo : dry this up */
+					/* @patch-start */
+					ctx.font = helpers.fontString(15, 'normal', "'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif");
+					ctx.fillStyle = "#2A2E30";
+					/* @patch-end */
+
 					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.translate(this.width * 0.57, yPos);
@@ -1656,10 +1682,23 @@
 				// Print Y axis
 				if (this.yAxisLabel) {
 					ctx.save();
-					ctx.font = this.font;
+
+					/* @patch-start */
+					ctx.font = helpers.fontString(15, 'normal', "'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif");
+					ctx.fillStyle = "#2A2E30";
+					/* @patch-end */
+
 					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 					ctx.translate(40, this.height * 0.41);
+
+					/* @patch-start */
+					var metric = ctx.measureText(this.yAxisLabel);
+					var maxWidth = 40;
+					if(maxWidth != null && metric.width > maxWidth) {
+						ctx.rotate(-1 * Math.PI / 2);
+					}
+					/* @patch-end */
 					ctx.fillText(this.yAxisLabel, 0, 0);
 					ctx.restore();
 				}
@@ -1982,10 +2021,10 @@
 		scaleShowGridLines : true,
 
 		//String - Colour of the grid lines
-		scaleGridLineColor : "rgba(0,0,0,.05)",
+		scaleGridLineColor : "#EEEEEE",
 
 		//Number - Width of the grid lines
-		scaleGridLineWidth : 1,
+		scaleGridLineWidth : 2,
 
 		//Boolean - If there is a stroke on each bar
 		barShowStroke : true,
@@ -2178,6 +2217,10 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding : (this.options.showScale) ? 0 : (this.options.barShowStroke) ? this.options.barStrokeWidth : 0,
 				showLabels : this.options.scaleShowLabels,
+				/* @patch-start */
+				showXMarkers : this.options.showXMarkers,
+				showYMarkers : this.options.showYMarkers,
+				/* @patch-end */
 				display : this.options.showScale
 			};
 
@@ -2457,10 +2500,10 @@
 		scaleShowGridLines : true,
 
 		//String - Colour of the grid lines
-		scaleGridLineColor : "rgba(0,0,0,.05)",
+		scaleGridLineColor : "#EEEEEE",
 
 		//Number - Width of the grid lines
-		scaleGridLineWidth : 1,
+		scaleGridLineWidth : 2,
 
 		//Boolean - Whether the line is curved between points
 		bezierCurve : true,
@@ -2501,6 +2544,7 @@
 		initialize:  function(data){
 			this.options.xAxisLabel = data.xAxisLabel || false;
 			this.options.yAxisLabel = data.yAxisLabel || false;
+
 			//Declare the extension of the default point, to cater for the options passed in to the constructor
 			this.PointClass = Chart.Point.extend({
 				strokeWidth : this.options.pointDotStrokeWidth,
@@ -2532,7 +2576,8 @@
 
 			//Iterate through each of the datasets, and build this into a property of the chart
 			helpers.each(data.datasets,function(dataset){
-
+				console.log('dataset:');
+				console.log(data.datasets);
 				var datasetObject = {
 					label : dataset.label || null,
 					fillColor : dataset.fillColor,
@@ -2644,6 +2689,10 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
 				showLabels : this.options.scaleShowLabels,
+				/* @patch-start */
+				showXMarkers : this.options.showXMarkers,
+				showYMarkers : this.options.showYMarkers,
+				/* @patch-end */
 				display : this.options.showScale
 			};
 
@@ -3405,3 +3454,5 @@
 
 
 }).call(this);
+
+
